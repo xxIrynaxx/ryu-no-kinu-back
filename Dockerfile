@@ -8,7 +8,7 @@ COPY src ./src
 
 RUN mvn clean install -DskipTests
 
-FROM openjdk:17-jre-slim # Можно использовать jre-slim, если вам не нужен JDK в рантайме
+FROM openjdk:17-jre-slim
 
 WORKDIR /app
 
