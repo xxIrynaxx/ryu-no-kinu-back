@@ -1,6 +1,6 @@
 # --- Первый этап: Сборка приложения (Build Stage) ---
-# Используем образ с JDK 17 (обычно на базе Debian, но более общий тег)
-FROM openjdk:17 AS builder
+# Используем образ OpenJDK 17 (с JDK)
+FROM openjdk:17 AS builder 
 
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
@@ -12,11 +12,11 @@ COPY pom.xml .
 COPY src ./src
 
 # Выполняем сборку Maven. Это создаст папку 'target' с JAR-файлом.
-RUN mvn clean install -DskipTests
+RUN mvn clean install -DskipTests # Убедитесь, что здесь нет лишнего "mvn"
 
 # --- Второй этап: Запуск приложения (Runtime Stage) ---
-# Используем образ JRE 17 (обычно на базе Debian, но более общий тег)
-FROM openjdk:17-jre
+# Используем тот же образ OpenJDK 17 (с JDK), если JRE версии недоступны
+FROM openjdk:17
 
 # Устанавливаем рабочую директорию для приложения
 WORKDIR /app
