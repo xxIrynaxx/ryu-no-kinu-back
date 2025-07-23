@@ -19,88 +19,71 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
-    private final UserDetailsServiceImpl userDetailsService;
+  private final JwtFilter jwtFilter;
+  private final UserDetailsServiceImpl userDetailsService;
 
-    public SecurityConfig(JwtFilter jwtFilter, UserDetailsServiceImpl userDetailsService) {
-        this.jwtFilter = jwtFilter;
-        this.userDetailsService = userDetailsService;
-    }
+  public SecurityConfig(JwtFilter jwtFilter, UserDetailsServiceImpl userDetailsService) {
+    this.jwtFilter = jwtFilter;
+    this.userDetailsService = userDetailsService;
+  }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.cors().and()
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                // Public routes
-                .requestMatchers(
-                    "/api/auth/**",
-                    "/api/styles/**",
-                    "/api/types/**",
-                    "/api/categories",
-                    "/api/categories/**",
-                    "/api/products",
-                    "/api/products/**",
-                    "/avatars/**",
-                    "/api/cart/**"
-                ).permitAll()
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http.cors().and()
+      .csrf(csrf -> csrf.disable())
+      .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Статус сессии — статeless
+      .authorizeHttpRequests(auth -> auth
+        .requestMatchers(
+          "/api/auth/**",
+          "/api/users/**",
+          "/api/styles/**",
+          "/api/types/**",
+          "/api/categories/**",
+                  "/avatars/**", "/api/admin/products", "/api/products/**", "/api/cart/**"
+        ).permitAll()
+        .requestMatchers("/api/admin/**", "/api/users/{id}/role", "/api/users").hasRole("ADMIN")
+            .requestMatchers("/api/users/me").authenticated()
+            .requestMatchers("/api/users/lang").authenticated()
+            .requestMatchers("/api/wishlist/**").authenticated()
+            .requestMatchers("/api/users/theme").authenticated().requestMatchers("/api/users/**").authenticated()
+        .anyRequest().authenticated()
+      )
+      .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+      .build();
+  }
 
-                // Admin routes
-                .requestMatchers("/api/admin/**", "/api/users/{id}/role", "/api/users").hasRole("ADMIN")
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-                // Authenticated user routes
-                .requestMatchers(
-                    "/api/users/me",
-                    "/api/users/lang",
-                    "/api/users/theme",
-                    "/api/wishlist/**"
-                ).authenticated()
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    return config.getAuthenticationManager();
+  }
 
-                // Remaining /api/users/** routes require authentication
-                .requestMatchers("/api/users/**").authenticated()
+  @Bean
+  public AuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    provider.setUserDetailsService(userDetailsService);
+    provider.setPasswordEncoder(passwordEncoder());
+    return provider;
+  }
+  
+  @Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.addAllowedOrigin("https://ryu-no-kinu.netlify.app");  // адрес твоего React-фронтенда
+    configuration.addAllowedMethod("*");  // все HTTP методы, включая PATCH, OPTIONS
+    configuration.addAllowedHeader("*");  // все заголовки, в том числе Content-Type и Authorization
+    configuration.setAllowCredentials(true);
 
-                // Fallback for any other request
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://ryu-no-kinu.netlify.app"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 👈 изменено с /api/** на /**
-        return source;
-    }
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/api/**", configuration);
+    return source;
+}
 }

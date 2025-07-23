@@ -25,25 +25,27 @@ public class JwtFilter extends OncePerRequestFilter {
     this.userDetailsService = userDetailsService;
   }
 
-  // private static final List<String> PUBLIC_URLS = List.of(
-  //   "/api/auth/login",
-  //   "/api/auth/register",
-  //   "/api/products/search"
-  // );
+  private static final List<String> PUBLIC_URLS = List.of(
+    "/api/auth/login",
+    "/api/auth/register",
+    "/api/products/search"
+  );
 
-  // private boolean isPublicPath(String path) {
-  //   return PUBLIC_URLS.stream().anyMatch(path::startsWith);
-  // }
+  private boolean isPublicPath(String path) {
+    return PUBLIC_URLS.stream().anyMatch(path::startsWith);
+  }
 
   @Override
   protected void doFilterInternal(HttpServletRequest request,
                                   HttpServletResponse response,
-      FilterChain filterChain) throws ServletException, IOException {
+                                  FilterChain filterChain) throws ServletException, IOException {
 
-        if (request.getMethod().equals("OPTIONS")) {
-            response.setStatus(HttpServletResponse.SC_OK);
-            return;
-        }                            
+    String path = request.getRequestURI();
+
+    if (isPublicPath(path)) {
+      filterChain.doFilter(request, response);
+      return;
+    }
 
     final String authHeader = request.getHeader("Authorization");
 
