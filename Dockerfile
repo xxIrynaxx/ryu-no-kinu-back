@@ -12,7 +12,7 @@ COPY pom.xml .
 COPY src ./src
 
 # Выполняем сборку Maven. Это создаст папку 'target' с JAR-файлом.
-RUN mvn clean install -DskipTests # Убедитесь, что здесь нет лишнего "mvn"
+RUN mvn clean install -DskipTests
 
 # --- Второй этап: Запуск приложения (Runtime Stage) ---
 # Используем тот же образ OpenJDK 17 (с JDK), если JRE версии недоступны
