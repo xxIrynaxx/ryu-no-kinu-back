@@ -16,18 +16,18 @@ public class WebConfig implements WebMvcConfigurer {
     .addResourceLocations("file:" + System.getProperty("user.dir") + "/uploads/avatars/");
   }
 
-  @Bean
-  public WebMvcConfigurer corsConfigurer() {
-    return new WebMvcConfigurer() {
+  // @Bean
+  // public WebMvcConfigurer corsConfigurer() {
+  //   return new WebMvcConfigurer() {
 
-      @Override
-      public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-            .allowedOrigins("https://ryu-no-kinu.netlify.app")
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .allowedHeaders("*")
-            .allowCredentials(true);
-      }
-    };
-  }
+  //     @Override
+  //     public void addCorsMappings(CorsRegistry registry) {
+  //       registry.addMapping("/api/**")
+  //           .allowedOrigins("https://ryu-no-kinu.netlify.app")
+  //           .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+  //           .allowedHeaders("*")
+  //           .allowCredentials(true);
+  //     }
+  //   };
+  // }
 }
