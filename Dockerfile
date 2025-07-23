@@ -1,5 +1,6 @@
 # --- Первый этап: Сборка приложения (Build Stage) ---
-FROM openjdk:17-jdk-slim-bullseye AS builder
+# Используем образ с JDK 17 (обычно на базе Debian, но более общий тег)
+FROM openjdk:17 AS builder
 
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
@@ -14,8 +15,8 @@ COPY src ./src
 RUN mvn clean install -DskipTests
 
 # --- Второй этап: Запуск приложения (Runtime Stage) ---
-# Используем более легкий образ OpenJDK для конечного рантайма
-FROM openjdk:17-jre-slim-bullseye
+# Используем образ JRE 17 (обычно на базе Debian, но более общий тег)
+FROM openjdk:17-jre
 
 # Устанавливаем рабочую директорию для приложения
 WORKDIR /app
