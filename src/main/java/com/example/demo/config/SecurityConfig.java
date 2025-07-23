@@ -74,16 +74,16 @@ public class SecurityConfig {
     return provider;
   }
   
-  @Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.addAllowedOrigin("https://ryu-no-kinu.netlify.app");  // адрес твоего React-фронтенда
-    configuration.addAllowedMethod("*");  // все HTTP методы, включая PATCH, OPTIONS
-    configuration.addAllowedHeader("*");  // все заголовки, в том числе Content-Type и Authorization
-    configuration.setAllowCredentials(true);
+//   @Bean
+// public CorsConfigurationSource corsConfigurationSource() {
+//     CorsConfiguration configuration = new CorsConfiguration();
+//     configuration.addAllowedOrigin("https://ryu-no-kinu.netlify.app");  // адрес твоего React-фронтенда
+//     configuration.addAllowedMethod("*");  // все HTTP методы, включая PATCH, OPTIONS
+//     configuration.addAllowedHeader("*");  // все заголовки, в том числе Content-Type и Authorization
+//     configuration.setAllowCredentials(true);
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/api/**", configuration);
-    return source;
-}
+//     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//     source.registerCorsConfiguration("/api/**", configuration);
+//     return source;
+// }
 }
